@@ -37,7 +37,7 @@ berlin_offset = timedelta(hours=1)  # UTC+1 para Berlín
 
 # Consultas para obtener el uso de CPU y memoria en millicores y MiB para el namespace específico
 cpu_query_template = 'sum(rate(container_cpu_usage_seconds_total{{job="kubelet", container!="POD", container!="", namespace="{namespace}"}}[5m])) by (pod, deployment)'
-memory_query_template = 'sum(container_memory_usage_bytes{{job="kubelet", container!="POD", container!="", namespace="{namespace}"}}) by (pod, deployment)'
+memory_query_template = 'max(max_over_time(container_memory_usage_bytes{{job="kubelet", container!="POD", container!="", namespace="{namespace}"}}[5m])) by (pod,deployment)'
 
 # Función para obtener el nombre del archivo CSV basado en la fecha actual
 def get_csv_filename(entorno):
@@ -49,7 +49,7 @@ def get_csv_filename(entorno):
 
 # Función para hacer la consulta a Prometheus
 def prometheus_query(query, prometheus_url):
-    proxy_url = 'http://rb-proxy-de.bosch.com:8080'  # rb-proxy-sl.bosch.com:8080
+    proxy_url = 'http://url.com:1680'
     proxies = {'http': proxy_url, 'https': proxy_url}
     proxy_handler = urllib.request.ProxyHandler(proxies)
     opener = urllib.request.build_opener(proxy_handler)
@@ -206,7 +206,7 @@ if __name__ == "__main__":
                 print(f"Recogiendo datos para el entorno: {entorno_actual}. -- {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
                 collect_and_preprocess_data(entorno_actual)
                 entorno_index = (entorno_index + 1) % len(entornos)  # Pasar al siguiente entorno
-            sleep_time.sleep(45)  # Esperar 45 segundos antes de la próxima iteración
+            sleep_time.sleep(60)  # Esperar 45 segundos antes de la próxima iteración
     except KeyboardInterrupt:
         print("Script terminado por el usuario.")
     except Exception as e:
